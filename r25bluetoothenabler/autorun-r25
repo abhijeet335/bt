@@ -1,0 +1,30 @@
+#!/usr/bin/sudo /bin/bash
+speak "Starting Bluetooth Enabler. Wait a minute! "
+
+#Re-enable bluetooth daemon
+mv /etc/init/bluetooth.conf.disabled /etc/init/bluetooth.conf
+
+#Remove bluetooth kernel module blacklist so they can load
+mv /etc/modprobe.d/blacklist-bluetooth.conf /etc/modprobe.d/blacklist-bluetooth.conf.disabled
+
+# This is the correct bluetooth firmware
+cp "$1"/ti-init.bts /lib/firmware/ti-connectivity/TIInit_7.6.15.bts
+
+
+#modprobe btwilink
+# uim Helper tool start btwilink
+cp "$1"/uim /usr/sbin
+cp "$1"/uim.conf /etc/init
+
+rfkill unblock bluetooth
+
+start bluetooth
+start uim
+
+# Bring up bluetooth adapter if it's not already.
+hciconfig hci0 up
+
+# Turn on Visibility until restarted.
+hciconfig hci0 piscan
+
+speak "Bluetooth Enabled"
